@@ -1,4 +1,4 @@
-// ↓↓// 旅しおり 設定ファイル
+// 旅しおり 設定ファイル
 const firebaseConfig = {
   apiKey: "AIzaSyAM7QFegkxTHiz1PlsDjMqWdyESkniu5-Y",
   authDomain: "tabishiori-3dae3.firebaseapp.com",
@@ -7,5 +7,5 @@ const firebaseConfig = {
   messagingSenderId: "832021625737",
   appId: "1:832021625737:web:2b64d134e561af3b00bf58"
 };
-// Googleマップのキー（あとで入れる）
-const mapsApiKey = "";
+// Googleマップのキー
+const mapsApiKey = "AIzaSyCF8uZUqT28iJKSOmbhdwsIofOF65_gNnc";
