@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function trip(tripId) { return get(/databases/$(database)/documents/trips/$(tripId)).data; }
+    function isMember(tripId) { return signedIn() && request.auth.uid in trip(tripId).members; }
+
+    match /trips/{tripId} {
+      // 旅行のメンバーだけが読める
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+      // 作成者が自分だけをメンバーにして作る
+      allow create: if signedIn()
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.members == [request.auth.uid];
+
+      allow update: if signedIn() && (
+        // メンバーによる編集（作成者は変えられない。メンバー一覧と招待コードは作成者だけが変更できる）
+        (request.auth.uid in resource.data.members
+          && request.resource.data.owner == resource.data.owner
+          && (request.auth.uid == resource.data.owner
+              || (request.resource.data.members == resource.data.members
+                  && request.resource.data.inviteCode == resource.data.inviteCode)))
+        // メンバーが自分から抜ける
+        || (request.auth.uid in resource.data.members
+          && request.auth.uid != resource.data.owner
+          && request.resource.data.members == resource.data.members.removeAll([request.auth.uid])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'memberInfo']))
+        // 招待リンク（正しい招待コード）で参加する
+        || (!(request.auth.uid in resource.data.members)
+          && request.resource.data.members == resource.data.members.concat([request.auth.uid])
+          && request.resource.data.lastJoinCode == resource.data.inviteCode
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'lastJoinCode', 'memberInfo'])
+          && request.resource.data.get('memberInfo', {}).diff(resource.data.get('memberInfo', {})).affectedKeys().hasOnly([request.auth.uid]))
+      );
+
+      allow delete: if signedIn() && request.auth.uid == resource.data.owner;
+
+      // 予定・宿・費用・予約・ルートはメンバーだけ
+      match /{sub}/{docId} {
+        allow read, write: if isMember(tripId);
+      }
+    }
+  }
+}

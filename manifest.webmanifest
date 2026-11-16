@@ -1,0 +1,15 @@
+{
+  "name": "旅しおり",
+  "short_name": "旅しおり",
+  "description": "旅行ごとに、同行メンバーだけで共有する旅程アプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#1f7a6d",
+  "lang": "ja",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
